@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/login.dart';
 import 'screens/register.dart';
-import 'screens/home.dart';
+import 'screens/home_a.dart';
+import 'screens/home_b.dart';
 import 'screens/book_detail_page.dart';
 import 'models/book.dart';
 
@@ -86,7 +87,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
-        '/home': (context) => const HomePage(),
+        '/home_a': (context) => const HomePageA(),
+        '/home_b': (context) => const HomePageB(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/book') {

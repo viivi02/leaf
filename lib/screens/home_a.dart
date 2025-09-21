@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_dialog.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePageA extends StatefulWidget {
+  const HomePageA({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageA> createState() => _HomePageAState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageAState extends State<HomePageA> {
   List<Book> books = [
     Book(title: "O Senhor dos Anéis", author: "J.R.R. Tolkien"),
     Book(title: "Dom Casmurro", author: "Machado de Assis"),
@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Minha Biblioteca"), centerTitle: true),
+      appBar: AppBar(title: const Text("Minha Biblioteca")),
       body: ListView.builder(
         itemCount: books.length,
         itemBuilder: (context, index) {

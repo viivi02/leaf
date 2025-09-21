@@ -10,10 +10,10 @@ If user doesn't have an account, they can navigate to the registration page.
 */
 
 import 'package:flutter/material.dart';
-import '../widgets/custom_button.dart';
 import 'register.dart';
-import 'home.dart';
-import '../widgets/my_text_field.dart';
+import 'home_a.dart';
+import 'home_b.dart';
+import '../component/teste_ab.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -28,15 +28,17 @@ class _LoginPageState extends State<LoginPage> {
   final pwController = TextEditingController();
 
   // login button pressed
-  void login() {
+  void login() async {
     final String email = emailController.text;
     final String pw = pwController.text;
 
     if (email.isNotEmpty && pw.isNotEmpty) {
-      // aqui simulamos login (sem backend)
-      Navigator.pushReplacement(
+      String variant = await TesteAB.getVariant();
+      if (!mounted) return;
+      debugPrint(variant);
+      Navigator.pushReplacementNamed(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        variant == "A" ? '/home_a' : '/home_b',
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: emailController,
               decoration: const InputDecoration(labelText: "Email"),
             ),
+            const SizedBox(height: 20),
             TextField(
               controller: pwController,
               decoration: const InputDecoration(labelText: "Senha"),
@@ -72,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                login();
               },
               child: const Text("Entrar"),
             ),
