@@ -16,7 +16,7 @@ class BookDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Título: ${book.title}", style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text("Autor: ${book.author}", style: const TextStyle(fontSize: 18)),
           ],
         ),

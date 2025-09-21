@@ -15,13 +15,25 @@ class RegisterPage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: "Nome")),
-            TextField(controller: emailController, decoration: const InputDecoration(labelText: "Email")),
-            TextField(controller: passController, decoration: const InputDecoration(labelText: "Senha"), obscureText: true),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Nome"),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passController,
+              decoration: const InputDecoration(labelText: "Senha"),
+              obscureText: true,
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pushReplacementNamed(context, '/login');
               },
               child: const Text("Registrar"),
             ),

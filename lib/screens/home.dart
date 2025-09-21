@@ -23,38 +23,40 @@ class _HomePageState extends State<HomePage> {
         itemCount: books.length,
         itemBuilder: (context, index) {
           final book = books[index];
-          return ListTile(
-            title: Text(book.title),
-            subtitle: Text(book.author),
-            onTap: () {
-              Navigator.pushNamed(context, '/book', arguments: book);
-            },
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () async {
-                    final editedBook = await showBookDialog(
-                      context: context,
-                      book: book,
-                    );
-                    if (editedBook != null) {
+          return Card(
+            child: ListTile(
+              title: Text(book.title),
+              subtitle: Text(book.author),
+              onTap: () {
+                Navigator.pushNamed(context, '/book', arguments: book);
+              },
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () async {
+                      final editedBook = await showBookDialog(
+                        context: context,
+                        book: book,
+                      );
+                      if (editedBook != null) {
+                        setState(() {
+                          books[index] = editedBook;
+                        });
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
                       setState(() {
-                        books[index] = editedBook;
+                        books.removeAt(index);
                       });
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      books.removeAt(index);
-                    });
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         },

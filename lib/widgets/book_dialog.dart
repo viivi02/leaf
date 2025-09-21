@@ -20,6 +20,7 @@ Future<Book?> showBookDialog({
               controller: titleController,
               decoration: const InputDecoration(labelText: "Título"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: authorController,
               decoration: const InputDecoration(labelText: "Autor"),
@@ -27,19 +28,24 @@ Future<Book?> showBookDialog({
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final newBook = Book(
-                title: titleController.text,
-                author: authorController.text,
-              );
-              Navigator.pop(context, newBook);
-            },
-            child: const Text("Salvar"),
+          Row(
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () {
+                  final newBook = Book(
+                    title: titleController.text,
+                    author: authorController.text,
+                  );
+                  Navigator.pop(context, newBook);
+                },
+                child: const Text("Salvar"),
+              ),
+            ],
           ),
         ],
       );

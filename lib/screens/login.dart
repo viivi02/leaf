@@ -14,9 +14,17 @@ class LoginPage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            TextField(controller: emailController, decoration: const InputDecoration(labelText: "Email")),
-            TextField(controller: passController, decoration: const InputDecoration(labelText: "Senha"), obscureText: true),
-            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: "Email"),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passController,
+              decoration: const InputDecoration(labelText: "Senha"),
+              obscureText: true,
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/home');
@@ -28,7 +36,7 @@ class LoginPage extends StatelessWidget {
                 Navigator.pushNamed(context, '/register');
               },
               child: const Text("Criar conta"),
-            )
+            ),
           ],
         ),
       ),
