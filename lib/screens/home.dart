@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../widgets/book_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,14 +29,44 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               Navigator.pushNamed(context, '/book', arguments: book);
             },
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () async {
+                    final editedBook = await showBookDialog(
+                      context: context,
+                      book: book,
+                    );
+                    if (editedBook != null) {
+                      setState(() {
+                        books[index] = editedBook;
+                      });
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      books.removeAt(index);
+                    });
+                  },
+                ),
+              ],
+            ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            books.add(Book(title: "Novo Livro", author: "Autor X"));
-          });
+        onPressed: () async {
+          final newBook = await showBookDialog(context: context);
+          if (newBook != null) {
+            setState(() {
+              books.add(newBook);
+            });
+          }
         },
         child: const Icon(Icons.add),
       ),
