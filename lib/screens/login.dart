@@ -10,9 +10,7 @@ If user doesn't have an account, they can navigate to the registration page.
 */
 
 import 'package:flutter/material.dart';
-import 'register.dart';
-import 'home_a.dart';
-import 'home_b.dart';
+
 import '../component/teste_ab.dart';
 
 class LoginPage extends StatefulWidget {
