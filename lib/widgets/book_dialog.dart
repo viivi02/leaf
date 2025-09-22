@@ -7,47 +7,64 @@ Future<Book?> showBookDialog({
 }) async {
   final titleController = TextEditingController(text: book?.title ?? "");
   final authorController = TextEditingController(text: book?.author ?? "");
+  final commentController = TextEditingController(text: book?.comment ?? "");
+  bool isRead = book?.isRead ?? false;
 
   return showDialog<Book>(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: Text(book == null ? "Adicionar Livro" : "Editar Livro"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "Título"),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: authorController,
-              decoration: const InputDecoration(labelText: "Autor"),
-            ),
-          ],
-        ),
-        actions: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancelar"),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(book == null ? "Adicionar Livro" : "Editar Comentario"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: commentController,
+                    decoration: const InputDecoration(labelText: "Comentário"),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    value: isRead,
+                    onChanged: (value) {
+                      setState(() {
+                        isRead = value ?? false;
+                      });
+                    },
+                    title: const Text("Já li este livro"),
+                  ),
+                ],
               ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  final newBook = Book(
-                    title: titleController.text,
-                    author: authorController.text,
-                  );
-                  Navigator.pop(context, newBook);
-                },
-                child: const Text("Salvar"),
+            ),
+            actions: [
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cancelar"),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      final newBook = Book(
+                        title: titleController.text,
+                        author: authorController.text,
+                        isRead: isRead,
+                        comment: commentController.text,
+                      );
+                      Navigator.pop(context, newBook);
+                    },
+                    child: const Text("Salvar"),
+                  ),
+                ],
               ),
             ],
-          ),
-        ],
+          );
+        },
       );
     },
   );

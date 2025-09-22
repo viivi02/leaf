@@ -11,14 +11,23 @@ class HomePageA extends StatefulWidget {
 
 class _HomePageAState extends State<HomePageA> {
   List<Book> books = [
-    Book(title: "O Senhor dos Anéis", author: "J.R.R. Tolkien"),
-    Book(title: "Dom Casmurro", author: "Machado de Assis"),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Minha Biblioteca")),
+      appBar: AppBar(
+        title: const Text("Minha Biblioteca"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // Simples: volta para a tela de login
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: books.length,
         itemBuilder: (context, index) {
@@ -28,7 +37,11 @@ class _HomePageAState extends State<HomePageA> {
               title: Text(book.title),
               subtitle: Text(book.author),
               onTap: () {
-                Navigator.pushNamed(context, '/book', arguments: book);
+                Navigator.pushNamed(
+                  context,
+                  '/book',
+                  arguments: book,
+                );
               },
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -61,16 +74,24 @@ class _HomePageAState extends State<HomePageA> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newBook = await showBookDialog(context: context);
-          if (newBook != null) {
-            setState(() {
-              books.add(newBook);
-            });
-          }
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 10),
+          FloatingActionButton(
+            heroTag: "searchOnline",
+            backgroundColor: const Color.fromARGB(255, 116, 229, 197),
+            onPressed: () async {
+              final newBook = await Navigator.pushNamed(context, '/search');
+              if (newBook != null && newBook is Book) {
+                setState(() {
+                  books.add(newBook);
+                });
+              }
+            },
+            child: const Icon(Icons.search),
+          ),
+        ],
       ),
     );
   }
