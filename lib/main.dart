@@ -1,13 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:leaf/screens/login.dart';
-import 'package:leaf/screens/register.dart';
+import 'package:leaf/screens/auth/login.dart';
+import 'package:leaf/screens/auth/register.dart';
 import 'screens/home_a.dart' as home_a;
 import 'screens/home_b.dart' as home_b; // <- importar também
 import 'screens/book_detail_page.dart';
 import 'screens/search_page.dart';
 import 'models/book.dart';
 
-void main() {
+import 'firebase_options.dart'; 
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

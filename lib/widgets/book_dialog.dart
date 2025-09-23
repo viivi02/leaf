@@ -3,12 +3,10 @@ import '../models/book.dart';
 
 Future<Book?> showBookDialog({
   required BuildContext context,
-  Book? book,
+  required Book book,
 }) async {
-  final titleController = TextEditingController(text: book?.title ?? "");
-  final authorController = TextEditingController(text: book?.author ?? "");
-  final commentController = TextEditingController(text: book?.comment ?? "");
-  bool isRead = book?.isRead ?? false;
+  final commentController = TextEditingController(text: book.comment);
+  bool isRead = book.isRead;
 
   return showDialog<Book>(
     context: context,
@@ -16,12 +14,11 @@ Future<Book?> showBookDialog({
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: Text(book == null ? "Adicionar Livro" : "Editar Comentario"),
+            title: const Text("Editar Comentário"),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(height: 8),
                   TextField(
                     controller: commentController,
                     decoration: const InputDecoration(labelText: "Comentário"),
@@ -41,26 +38,23 @@ Future<Book?> showBookDialog({
               ),
             ),
             actions: [
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancelar"),
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      final newBook = Book(
-                        title: titleController.text,
-                        author: authorController.text,
-                        isRead: isRead,
-                        comment: commentController.text,
-                      );
-                      Navigator.pop(context, newBook);
-                    },
-                    child: const Text("Salvar"),
-                  ),
-                ],
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final updatedBook = Book(
+                    id: book.id,
+                    title: book.title,
+                    author: book.author,
+                    thumbnailUrl: book.thumbnailUrl,
+                    isRead: isRead,
+                    comment: commentController.text,
+                  );
+                  Navigator.pop(context, updatedBook);
+                },
+                child: const Text("Salvar"),
               ),
             ],
           );

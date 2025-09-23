@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_dialog.dart';
+import 'book_detail_page.dart';
 
 class HomePageA extends StatefulWidget {
   const HomePageA({super.key});
@@ -10,8 +13,8 @@ class HomePageA extends StatefulWidget {
 }
 
 class _HomePageAState extends State<HomePageA> {
-  List<Book> books = [
-  ];
+  final user = FirebaseAuth.instance.currentUser!;
+  final booksRef = FirebaseFirestore.instance.collection("books");
 
   @override
   Widget build(BuildContext context) {
@@ -21,77 +24,84 @@ class _HomePageAState extends State<HomePageA> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Simples: volta para a tela de login
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              if (!mounted) return;
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: books.length,
-        itemBuilder: (context, index) {
-          final book = books[index];
-          return Card(
-            child: ListTile(
-              title: Text(book.title),
-              subtitle: Text(book.author),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/book',
-                  arguments: book,
-                );
-              },
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    onPressed: () async {
-                      final editedBook = await showBookDialog(
-                        context: context,
-                        book: book,
-                      );
-                      if (editedBook != null) {
-                        setState(() {
-                          books[index] = editedBook;
-                        });
-                      }
-                    },
+      body: StreamBuilder<QuerySnapshot>(
+        stream: booksRef.where("uid", isEqualTo: user.uid).snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text("Nenhum livro encontrado"));
+          }
+
+          final docs = snapshot.data!.docs;
+
+          return ListView(
+            children: docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final book = Book.fromMap(data, id: doc.id);
+
+              return Card(
+                child: ListTile(
+                  title: Text(book.title),
+                  subtitle: Text(book.author),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BookDetailPage(book: book),
+                      ),
+                    );
+                  },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () async {
+                          final editedBook = await showBookDialog(
+                            context: context,
+                            book: book,
+                          );
+                          if (editedBook != null) {
+                            await booksRef.doc(doc.id).update(editedBook.toMap());
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          await booksRef.doc(doc.id).delete();
+                        },
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        books.removeAt(index);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            }).toList(),
           );
         },
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: "searchOnline",
-            backgroundColor: const Color.fromARGB(255, 116, 229, 197),
-            onPressed: () async {
-              final newBook = await Navigator.pushNamed(context, '/search');
-              if (newBook != null && newBook is Book) {
-                setState(() {
-                  books.add(newBook);
-                });
-              }
-            },
-            child: const Icon(Icons.search),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 116, 229, 197),
+        onPressed: () async {
+          final newBook = await Navigator.pushNamed(context, '/search');
+          if (newBook != null && newBook is Book) {
+            await booksRef.add({
+              "uid": user.uid,
+              ...newBook.toMap(),
+            });
+          }
+        },
+        child: const Icon(Icons.search),
       ),
     );
   }
