@@ -74,10 +74,4 @@ flutter run
 
 <img src="docs/screenshots/Frame 1.png">
 
-<!-- <img src="docs/screenshots/leaf_1.png">
-<img src="docs/screenshots/leaf_2.png">
-<img src="docs/screenshots/leaf_3.png">
-<img src="docs/screenshots/leaf_4.png">
-<img src="docs/screenshots/leaf_5.png"> -->
-
 ---
