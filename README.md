@@ -1,16 +1,83 @@
-# leaf
+# 📚 Leaf – Biblioteca Pessoal
 
-A new Flutter project.
+Aplicativo de **Biblioteca Pessoal** desenvolvido em **Flutter** para gerenciamento de leituras.  
+O objetivo é permitir que o usuário organize seus livros, anote suas percepções sobre eles e mantenha o hábito da leitura de forma simples e prática.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Funcionalidades
 
-A few resources to get you started if this is your first Flutter project:
+- **CRUD de livros**
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+  - Adicionar novos livros (título e autor)
+  - Editar informações de livros cadastrados
+  - Excluir livros
+  - Visualizar lista de livros cadastrados
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Status de leitura**
+  - 📖 **Lido**
+  - 📚 **Não lido**
+
+---
+
+## 📦 Como Executar o Projeto
+
+### 1. Pré-requisitos
+
+- **Instalar Flutter SDK**
+
+  - [Baixar Flutter para Windows](https://docs.flutter.dev/get-started/install/windows)
+  - Extraia o arquivo para uma pasta de sua escolha (exemplo: `C:\src\flutter`).
+
+- **Configurar o PATH**
+  1. Abra o menu iniciar e digite: **Variáveis de Ambiente**
+  2. Clique em **Editar variáveis de ambiente do sistema**
+  3. Em **Variáveis de Ambiente → Path → Editar**, adicione o caminho da pasta `bin` do Flutter:
+     ```
+     C:\src\flutter\bin
+     ```
+  4. Clique em **OK** em todas as janelas.
+
+---
+
+### 2. Clonar o projeto e testar instalação
+
+```bash
+# Clonar o repositório
+git clone https://github.com/viivi02/leaf.git
+
+# Acessar a pasta do projeto
+cd leaf
+
+# Instalar dependências
+flutter pub get
+```
+
+---
+
+### 3. Executar o aplicativo
+
+```bash
+# Verificar se o Flutter está funcionando:
+flutter doctor
+
+# Rodar no navegador (Web):
+flutter run -d chrome
+
+#Rodar em dispositivo ou emulador Android:
+flutter run
+```
+
+---
+
+## 📷 Demonstração
+
+<img src="docs/screenshots/Frame 1.png">
+
+<!-- <img src="docs/screenshots/leaf_1.png">
+<img src="docs/screenshots/leaf_2.png">
+<img src="docs/screenshots/leaf_3.png">
+<img src="docs/screenshots/leaf_4.png">
+<img src="docs/screenshots/leaf_5.png"> -->
+
+---
