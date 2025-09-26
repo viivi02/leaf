@@ -4,9 +4,11 @@ import '../models/book.dart';
 import '../widgets/book_dialog.dart';
 import 'book_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../component/event_logger.dart';
 
 class HomePageB extends StatefulWidget {
-  const HomePageB({super.key});
+  const HomePageB({super.key, required this.group});
+  final String group;
 
   @override
   State<HomePageB> createState() => _HomePageBState();
@@ -14,8 +16,16 @@ class HomePageB extends StatefulWidget {
 
 class _HomePageBState extends State<HomePageB> {
   final user = FirebaseAuth.instance.currentUser!;
-  final CollectionReference booksRef =
-      FirebaseFirestore.instance.collection('books');
+  final CollectionReference booksRef = FirebaseFirestore.instance.collection(
+    'books',
+  );
+  DateTime? _entryTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _entryTime = DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,16 +95,12 @@ class _HomePageBState extends State<HomePageB> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Image.network(book.thumbnailUrl),
-                        ),
+                        Expanded(child: Image.network(book.thumbnailUrl)),
                         Text(
                           book.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -114,7 +120,9 @@ class _HomePageBState extends State<HomePageB> {
                                   book: book,
                                 );
                                 if (editedBook != null) {
-                                  booksRef.doc(book.id).update(editedBook.toMap());
+                                  booksRef
+                                      .doc(book.id)
+                                      .update(editedBook.toMap());
                                 }
                               },
                             ),
@@ -139,10 +147,17 @@ class _HomePageBState extends State<HomePageB> {
         onPressed: () async {
           final newBook = await Navigator.pushNamed(context, '/search');
           if (newBook != null && newBook is Book) {
-            booksRef.add({
-              "uid": user.uid,
-              ...newBook.toMap(),
-            });
+            booksRef.add({"uid": user.uid, ...newBook.toMap()});
+
+            if (_entryTime != null) {
+              final duration = DateTime.now().difference(_entryTime!);
+              EventLogger.logEvent(
+                userId: user.uid,
+                group: widget.group,
+                action: "time_to_add",
+                durationMs: duration.inMilliseconds,
+              );
+            }
           }
         },
         icon: const Icon(Icons.search),
