@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_dialog.dart';
 import 'book_detail_page.dart';
+import '../component/event_logger.dart';
 
 class HomePageA extends StatefulWidget {
-  const HomePageA({super.key});
+  const HomePageA({super.key, required this.group});
+  final String group;
 
   @override
   State<HomePageA> createState() => _HomePageAState();
@@ -15,6 +17,14 @@ class HomePageA extends StatefulWidget {
 class _HomePageAState extends State<HomePageA> {
   final user = FirebaseAuth.instance.currentUser!;
   final booksRef = FirebaseFirestore.instance.collection("books");
+
+  DateTime? _entryTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _entryTime = DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +82,9 @@ class _HomePageAState extends State<HomePageA> {
                             book: book,
                           );
                           if (editedBook != null) {
-                            await booksRef.doc(doc.id).update(editedBook.toMap());
+                            await booksRef
+                                .doc(doc.id)
+                                .update(editedBook.toMap());
                           }
                         },
                       ),
@@ -95,10 +107,17 @@ class _HomePageAState extends State<HomePageA> {
         onPressed: () async {
           final newBook = await Navigator.pushNamed(context, '/search');
           if (newBook != null && newBook is Book) {
-            await booksRef.add({
-              "uid": user.uid,
-              ...newBook.toMap(),
-            });
+            await booksRef.add({"uid": user.uid, ...newBook.toMap()});
+
+            if (_entryTime != null) {
+              final duration = DateTime.now().difference(_entryTime!);
+              EventLogger.logEvent(
+                userId: user.uid,
+                group: widget.group,
+                action: "time_to_add",
+                durationMs: duration.inMilliseconds,
+              );
+            }
           }
         },
         child: const Icon(Icons.search),

@@ -1,14 +1,3 @@
-/*
-PAGINA DE LOGIN - Biblioteca App
-
-Nesta página um usuário existente pode fazer login no aplicativo com:
-- Email
-- Senha
-
-Once the user successfully logs in, they will be redirected to the home page.
-If user doesn't have an account, they can navigate to the registration page.
-*/
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../component/teste_ab.dart';
@@ -71,6 +60,15 @@ class _LoginPageState extends State<LoginPage> {
                 Navigator.pushNamed(context, '/register');
               },
               child: const Text("Criar conta"),
+            ),
+            const SizedBox(height: 20),
+            // 🚀 Botão para ir direto para Estatísticas
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/stats'); // rota das estatísticas
+              },
+              icon: const Icon(Icons.bar_chart),
+              label: const Text("Ver Estatísticas"),
             ),
           ],
         ),
