@@ -1,0 +1,54 @@
+name: Flutter CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Flutter Build & Test
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        flutter-version: [3.35.4]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Cache Pub packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.yaml') }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build Android APK (Release)
+        run: flutter build apk --release
+
+      - name: Build iOS IPA (Release, no codesign)
+        run: flutter build ipa --release --no-codesign
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leaf-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leaf-release.ipa
+          path: build/ios/ipa/*.ipa
