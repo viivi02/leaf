@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:leaf/screens/auth/login.dart';
 import 'package:leaf/screens/auth/register.dart';
 import 'screens/home_a.dart' as home_a;
-import 'screens/home_b.dart' as home_b; // <- importar também
+import 'screens/home_b.dart' as home_b;
 import 'screens/book_detail_page.dart';
 import 'screens/search_page.dart';
 import 'models/book.dart';
@@ -13,6 +14,16 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.setConfigSettings(
+    RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 10),
+      minimumFetchInterval: const Duration(seconds: 0),
+    ),
+  );
+  await remoteConfig.fetchAndActivate();
+
   runApp(const MyApp());
 }
 
@@ -34,7 +45,7 @@ class MyApp extends StatelessWidget {
           final book = ModalRoute.of(context)!.settings.arguments as Book;
           return BookDetailPage(book: book);
         },
-        '/stats': (context) => const DashboardPage(), // 👈 nova rota
+        '/stats': (context) => const DashboardPage(),
       },
     );
   }
