@@ -32,6 +32,8 @@ class _HomePageBState extends State<HomePageB> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Biblioteca Visual"),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -42,8 +44,6 @@ class _HomePageBState extends State<HomePageB> {
             },
           ),
         ],
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: booksRef.where("uid", isEqualTo: user.uid).snapshots(),
@@ -76,6 +76,8 @@ class _HomePageBState extends State<HomePageB> {
             itemCount: books.length,
             itemBuilder: (context, index) {
               final book = books[index];
+              final imageUrl = book.thumbnailUrl;
+
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -83,6 +85,13 @@ class _HomePageBState extends State<HomePageB> {
                     MaterialPageRoute(
                       builder: (_) => BookDetailPage(book: book),
                     ),
+                  );
+
+                  EventLogger.logEvent(
+                    userId: user.uid,
+                    group: widget.group,
+                    action: "book_opened_b",
+                    extra: {"book_title": book.title},
                   );
                 },
                 child: Card(
@@ -95,7 +104,37 @@ class _HomePageBState extends State<HomePageB> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: Image.network(book.thumbnailUrl)),
+                        Expanded(
+                          child: imageUrl.isNotEmpty
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // 🔸 fallback se a URL for inválida
+                                    EventLogger.logEvent(
+                                      userId: user.uid,
+                                      group: widget.group,
+                                      action: "image_load_error_b",
+                                      extra: {"book_title": book.title},
+                                    );
+                                    return const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey,
+                                        size: 40,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : const Center(
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color: Colors.grey,
+                                    size: 40,
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           book.title,
                           maxLines: 2,
@@ -120,16 +159,30 @@ class _HomePageBState extends State<HomePageB> {
                                   book: book,
                                 );
                                 if (editedBook != null) {
-                                  booksRef
+                                  await booksRef
                                       .doc(book.id)
                                       .update(editedBook.toMap());
+
+                                  EventLogger.logEvent(
+                                    userId: user.uid,
+                                    group: widget.group,
+                                    action: "book_edited_b",
+                                    extra: {"book_title": book.title},
+                                  );
                                 }
                               },
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                booksRef.doc(book.id).delete();
+                              onPressed: () async {
+                                await booksRef.doc(book.id).delete();
+
+                                EventLogger.logEvent(
+                                  userId: user.uid,
+                                  group: widget.group,
+                                  action: "book_deleted_b",
+                                  extra: {"book_title": book.title},
+                                );
                               },
                             ),
                           ],
@@ -143,25 +196,33 @@ class _HomePageBState extends State<HomePageB> {
           );
         },
       ),
+
+      // 🔹 Botão de adicionar de volta (com log)
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final newBook = await Navigator.pushNamed(context, '/search');
           if (newBook != null && newBook is Book) {
-            booksRef.add({"uid": user.uid, ...newBook.toMap()});
+            await booksRef.add({"uid": user.uid, ...newBook.toMap()});
 
             if (_entryTime != null) {
               final duration = DateTime.now().difference(_entryTime!);
               EventLogger.logEvent(
                 userId: user.uid,
                 group: widget.group,
-                action: "time_to_add",
+                action: "time_to_add_b",
                 durationMs: duration.inMilliseconds,
               );
             }
           }
+
+          EventLogger.logEvent(
+            userId: user.uid,
+            group: widget.group,
+            action: "add_button_pressed_b",
+          );
         },
-        icon: const Icon(Icons.search),
-        label: const Text("Buscar Livro"),
+        icon: const Icon(Icons.add),
+        label: const Text("Adicionar Livro"),
         backgroundColor: const Color.fromARGB(255, 188, 170, 220),
       ),
     );

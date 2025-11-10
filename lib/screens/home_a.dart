@@ -17,20 +17,28 @@ class HomePageA extends StatefulWidget {
 class _HomePageAState extends State<HomePageA> {
   final user = FirebaseAuth.instance.currentUser!;
   final booksRef = FirebaseFirestore.instance.collection("books");
-
   DateTime? _entryTime;
 
   @override
   void initState() {
     super.initState();
     _entryTime = DateTime.now();
+
+    // Evento: entrou na tela A
+    EventLogger.logEvent(
+      userId: user.uid,
+      group: widget.group,
+      action: "list_view_opened",
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text("Minha Biblioteca"),
+        title: const Text("📚 Minha Biblioteca"),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -54,15 +62,19 @@ class _HomePageAState extends State<HomePageA> {
 
           final docs = snapshot.data!.docs;
 
-          return ListView(
-            children: docs.map((doc) {
-              final data = doc.data() as Map<String, dynamic>;
-              final book = Book.fromMap(data, id: doc.id);
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data() as Map<String, dynamic>;
+              final book = Book.fromMap(data, id: docs[index].id);
 
               return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                elevation: 2,
                 child: ListTile(
                   title: Text(book.title),
                   subtitle: Text(book.author),
+                  leading: const Icon(Icons.menu_book, color: Colors.teal),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -82,28 +94,36 @@ class _HomePageAState extends State<HomePageA> {
                             book: book,
                           );
                           if (editedBook != null) {
-                            await booksRef
-                                .doc(doc.id)
-                                .update(editedBook.toMap());
+                            await booksRef.doc(docs[index].id).update(editedBook.toMap());
+                            EventLogger.logEvent(
+                              userId: user.uid,
+                              group: widget.group,
+                              action: "edit_book_a",
+                            );
                           }
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
-                          await booksRef.doc(doc.id).delete();
+                          await booksRef.doc(docs[index].id).delete();
+                          EventLogger.logEvent(
+                            userId: user.uid,
+                            group: widget.group,
+                            action: "delete_book_a",
+                          );
                         },
                       ),
                     ],
                   ),
                 ),
               );
-            }).toList(),
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(255, 116, 229, 197),
+        backgroundColor: Colors.tealAccent,
         onPressed: () async {
           final newBook = await Navigator.pushNamed(context, '/search');
           if (newBook != null && newBook is Book) {
@@ -114,13 +134,13 @@ class _HomePageAState extends State<HomePageA> {
               EventLogger.logEvent(
                 userId: user.uid,
                 group: widget.group,
-                action: "time_to_add",
+                action: "time_to_add_a",
                 durationMs: duration.inMilliseconds,
               );
             }
           }
         },
-        child: const Icon(Icons.search),
+        child: const Icon(Icons.add),
       ),
     );
   }
