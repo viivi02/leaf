@@ -5,6 +5,7 @@ import '../models/book.dart';
 import '../widgets/book_dialog.dart';
 import 'book_detail_page.dart';
 import '../component/event_logger.dart';
+import '../theme/app_theme.dart';
 
 class HomePageA extends StatefulWidget {
   const HomePageA({super.key, required this.group});
@@ -24,7 +25,7 @@ class _HomePageAState extends State<HomePageA> {
     super.initState();
     _entryTime = DateTime.now();
 
-    // Evento: entrou na tela A
+    // Log de entrada
     EventLogger.logEvent(
       userId: user.uid,
       group: widget.group,
@@ -35,100 +36,138 @@ class _HomePageAState extends State<HomePageA> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        title: const Text("📚 Minha Biblioteca"),
-        backgroundColor: Colors.teal,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: booksRef.where("uid", isEqualTo: user.uid).snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("Nenhum livro encontrado"));
-          }
-
-          final docs = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              final book = Book.fromMap(data, id: docs[index].id);
-
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                elevation: 2,
-                child: ListTile(
-                  title: Text(book.title),
-                  subtitle: Text(book.author),
-                  leading: const Icon(Icons.menu_book, color: Colors.teal),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BookDetailPage(book: book),
+      body: Container(
+        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+        child: Column(
+          children: [
+            AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: const Text(
+                "📚 Minha Biblioteca",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                    if (!mounted) return;
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                ),
+              ],
+            ),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: booksRef.where("uid", isEqualTo: user.uid).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Nenhum livro encontrado",
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                     );
-                  },
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () async {
-                          final editedBook = await showBookDialog(
-                            context: context,
-                            book: book,
-                          );
-                          if (editedBook != null) {
-                            await booksRef.doc(docs[index].id).update(editedBook.toMap());
-                            EventLogger.logEvent(
-                              userId: user.uid,
-                              group: widget.group,
-                              action: "edit_book_a",
+                  }
+
+                  final docs = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final data = docs[index].data() as Map<String, dynamic>;
+                      final book = Book.fromMap(data, id: docs[index].id);
+
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: AppTheme.cardDecoration,
+                        child: ListTile(
+                          leading: const Icon(Icons.menu_book,
+                              color: Colors.white70),
+                          title: Text(
+                            book.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            book.author,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BookDetailPage(book: book),
+                              ),
                             );
-                          }
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          await booksRef.doc(docs[index].id).delete();
-                          EventLogger.logEvent(
-                            userId: user.uid,
-                            group: widget.group,
-                            action: "delete_book_a",
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                          },
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.lightBlueAccent),
+                                onPressed: () async {
+                                  final editedBook = await showBookDialog(
+                                    context: context,
+                                    book: book,
+                                  );
+                                  if (editedBook != null) {
+                                    await booksRef
+                                        .doc(docs[index].id)
+                                        .update(editedBook.toMap());
+                                    EventLogger.logEvent(
+                                      userId: user.uid,
+                                      group: widget.group,
+                                      action: "edit_book_a",
+                                    );
+                                  }
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent),
+                                onPressed: () async {
+                                  await booksRef.doc(docs[index].id).delete();
+                                  EventLogger.logEvent(
+                                    userId: user.uid,
+                                    group: widget.group,
+                                    action: "delete_book_a",
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.tealAccent,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.blueAccent,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text("Adicionar Livro"),
         onPressed: () async {
           final newBook = await Navigator.pushNamed(context, '/search');
           if (newBook != null && newBook is Book) {
             await booksRef.add({"uid": user.uid, ...newBook.toMap()});
-
             if (_entryTime != null) {
               final duration = DateTime.now().difference(_entryTime!);
               EventLogger.logEvent(
@@ -140,7 +179,6 @@ class _HomePageAState extends State<HomePageA> {
             }
           }
         },
-        child: const Icon(Icons.add),
       ),
     );
   }
